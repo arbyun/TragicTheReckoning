@@ -12,9 +12,9 @@ namespace TragicTheReckoningGame
         public bool CardsLeft;
 
         /// <summary>
-        /// 
+        /// Construtor
         /// </summary>
-        /// <param name="maxCards"></param>
+        /// <param name="maxCards">número de cartas possiveis</param>
         public Deck(int maxCards)
         {
             _maxCards = maxCards;
@@ -77,7 +77,7 @@ namespace TragicTheReckoningGame
 
 
         /// <summary>
-        /// 
+        /// Baralhar as cartas
         /// </summary>
         public void ShuffleCards()
         {
