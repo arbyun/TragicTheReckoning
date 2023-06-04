@@ -9,12 +9,21 @@ namespace TragicTheReckoningGame
 
         public static Player PlayerOne;
         public static Player PlayerTwo;
+        public TurnHandler TurnHandler;
 
         static void Main(string[] args)
         {
             Console.WriteLine("Write here an intro or something");
             CreatePlayer(1);
             CreatePlayer(2);
+
+            if (TurnHandler.CurrentTurnNumber == 1) {
+                TurnHandler.PhaseOne(PlayerOne, PlayerTwo, 4)
+            }
+            else {
+                TurnHandler.PhaseOne(PlayerOne, PlayerTwo, 1)
+            }
+
             
             do
             {
