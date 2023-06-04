@@ -10,7 +10,7 @@
         public bool InPlay;
 
         /// <summary>
-        /// 
+        /// Construtor das cartas contendo todos os parametros necessários
         /// </summary>
         /// <param name="name"></param>
         /// <param name="cost"></param>
@@ -27,11 +27,12 @@
         }
         
         /// <summary>
-        /// 
+        /// Representação das cartas no ecrã
         /// </summary>
         /// <returns></returns>
         public override string ToString() => $"{Name}/{Cost}/{Ap}/{Dp}";
 
+        //Function to make the damage be delt to defence 
         public void Damage(int damage) => Dp -= damage;
     }
 }
