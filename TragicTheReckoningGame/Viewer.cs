@@ -113,6 +113,11 @@ namespace TragicTheReckoningGame
 
             do
             {
+                if (input == "next")
+                {
+                    break;
+                }
+                
                 Card c = inHand.Find(card => card.Id.ToString() == input);
 
                 if (c != null) // Check if the card is found
@@ -143,7 +148,7 @@ namespace TragicTheReckoningGame
                 }
 
                 input = Console.ReadLine(); // Read the next input
-            } while (player.Mana != 0 || input != "next");
+            } while (player.Mana !>= 0);
         }
 
         /// <summary> Visual indicator of the player having played a card.</summary>
