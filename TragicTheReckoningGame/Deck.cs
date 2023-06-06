@@ -9,7 +9,7 @@ namespace TragicTheReckoningGame
         public Player Owner;
         
         // are there cards left in the deck?
-        public bool CardsLeft;
+        public bool CardsLeft = true;
 
         /// <summary>
         /// Construtor
