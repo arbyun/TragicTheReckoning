@@ -2,8 +2,8 @@
 Project for LP1 based on Magic: The Gathering
 
 Trabalho feito por 
-Francisco Anjos(a22204855) : Markdown, UML, cartas e correção de código
-Daniela Dantas(a22202104): Deck, sistema de ataque, card handler, main e viewer
+- Francisco Anjos(a22204855) : Markdown, UML, cartas e correção de código
+- Daniela Dantas(a22202104): Deck, sistema de ataque, card handler, main e viewer
 
 Este projeto foi-nos proposto como o segundo projeto para a avaliação da disciplina liguagens de programação 1.
 
