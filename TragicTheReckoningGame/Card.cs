@@ -10,6 +10,7 @@ namespace TragicTheReckoningGame
         public readonly int Id;
         public int Dp;
         public readonly Deck InDeck; //the deck the card is in
+        public bool isDead = false;
 
         /// <summary> The Card function creates a new card object with the given name, cost, attack points and defense points.        
         /// It also assigns an ID to the card based on its position in the deck.</summary>
@@ -44,6 +45,7 @@ namespace TragicTheReckoningGame
             if (Dp <= 0)
             {
                 Console.WriteLine($"{this.Name} from {this.InDeck.Owner.Name} was defeated!");
+                isDead = true;
             }
         }
     }
