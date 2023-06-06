@@ -3,6 +3,7 @@ Project for LP1 based on Magic: The Gathering
 
 Trabalho feito por Francisco Anjos(a22204855):Markdown,UML,cartas e correção de código
 		   Daniela Dantas(a22202104):Deck,sistema de ataque , card handler, main e viewer
+
 Este projeto foi nos proposto como o segundo projeto para avaliação de liguagens ce programação.
 
 O projeto consiste num jogo de cartas entre 2 jogadores, cada jogador começa com 6 cartas na mão.
