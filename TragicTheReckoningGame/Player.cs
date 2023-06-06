@@ -2,11 +2,11 @@
 {
     public class Player
     {
-        public string Name;
+        public readonly string Name;
         public int Hp;
-        public int MaxHandSize;
+        public readonly int MaxHandSize;
         public int Mana;
-        public Deck PlayerDeck;
+        public readonly Deck PlayerDeck;
         
         /// <summary>
         /// Construtor
