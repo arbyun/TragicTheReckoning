@@ -1,4 +1,6 @@
-﻿namespace TragicTheReckoningGame
+﻿using System;
+
+namespace TragicTheReckoningGame
 {
     public class Card
     {
@@ -9,7 +11,6 @@
         public int Dp;
         public readonly Deck InDeck; //the deck the card is in
 
-        
         /// <summary> The Card function creates a new card object with the given name, cost, attack points and defense points.        
         /// It also assigns an ID to the card based on its position in the deck.</summary>
         /// <param name="name"> Name of the card</param>
@@ -24,18 +25,26 @@
             Cost = cost;
             Ap = ap;
             Dp = dp;
-            Id = InDeck.CardList.Count + 1;
             InDeck = inDeck;
+            Id = inDeck!.CardList.Count + 1;
         }
         
         /// <summary>
         /// Representação das cartas no ecrã
         /// </summary>
-        public override string ToString() => $"[ID: {Id}] ||  {Name}/{Cost}/{Ap}/{Dp}";
+        public override string ToString() => $"[ID: {Id}] ||  {Name}/{Cost} MANA/{Ap} DAMAGE/{Dp} DEFENSE";
 
         /// <summary>
         /// Makes card suffer damage taking into account their defense points
         /// </summary> 
         public void Damage(int damage) => Dp -= damage;
+
+        public void CardHealthCheck()
+        {
+            if (Dp <= 0)
+            {
+                Console.WriteLine($"{this.Name} from {this.InDeck.Owner.Name} was defeated!");
+            }
+        }
     }
 }
