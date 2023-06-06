@@ -9,7 +9,7 @@ namespace TragicTheReckoningGame
 
         public static Player PlayerOne;
         public static Player PlayerTwo;
-        public TurnHandler TurnHandler;
+        public static TurnHandler TurnHandler;
 
         static void Main(string[] args)
         {
@@ -17,13 +17,14 @@ namespace TragicTheReckoningGame
             CreatePlayer(1);
             CreatePlayer(2);
 
-            if (TurnHandler.CurrentTurnNumber == 1) {
-                TurnHandler.PhaseOne(PlayerOne, PlayerTwo, 4)
+            if (TurnHandler.CurrentTurnNumber == 1)
+            {
+                TurnHandler.PhaseOne(PlayerOne, PlayerTwo, 4);
             }
-            else {
-                TurnHandler.PhaseOne(PlayerOne, PlayerTwo, 1)
+            else
+            {
+                TurnHandler.PhaseOne(PlayerOne, PlayerTwo, 1);
             }
-
             
             do
             {
