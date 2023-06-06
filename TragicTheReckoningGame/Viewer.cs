@@ -5,7 +5,7 @@ namespace TragicTheReckoningGame
 {
     sealed class Viewer
     {
-        internal readonly List<Card> CardsOnScreen = null;
+        internal readonly List<Card> CardsOnScreen = new List<Card>();
 
         #region Instance Handler
 
@@ -32,9 +32,9 @@ namespace TragicTheReckoningGame
         /// <summary> Visually displays the current cards in a player's hand.</summary>
         /// <param name="cards"> The cards in the player's hand.</param>
         /// <returns> A list of cards</returns>
-        internal static void ShowPlayerCardsInHand(List<Card> cards)
+        internal static void ShowPlayerCardsInHand(List<Card> cards, Player player)
         {
-            Console.WriteLine("\nCards in your hand:\n\n");
+            Console.WriteLine("Cards in your hand:\n\n");
             
             foreach (Card card in cards)
             {
@@ -42,6 +42,7 @@ namespace TragicTheReckoningGame
             }
             
             Console.WriteLine("\n");
+            Console.WriteLine($"You have {player.Mana} mana.");
         }
 
         /// <summary> Draws the title of the game on screen.</summary>
@@ -49,16 +50,16 @@ namespace TragicTheReckoningGame
         {
             string t = "TRAGIC! The Reckoning";
             Console.WriteLine(String.Format("{0," + ((Console.WindowWidth / 2) + (t.Length / 2)) + "}", t));
-            Console.WriteLine("\n\n\n\n");
+            Console.WriteLine("\n\n");
         }
 
         /// <summary> Visually draws the games' instructions on the screen.</summary>
         internal static void DrawInstructionsOnScreen()
         {
-            Console.WriteLine("Please write the ID number of the card you wish to play. Keep in mind that " +
+            Console.WriteLine("\nPlease write the ID number of the card you wish to play. Keep in mind that " +
                               "you won't be able to play a card if you don't have enough mana for it."); 
             
-            Console.WriteLine("\nIf you are done with your turn, please write 'next'.");
+            Console.WriteLine("If you are done with your turn, please write 'next'.\n");
         }
 
         /// <summary> The InputListener function listens for input from the player and then checks if it's a valid card
@@ -98,26 +99,51 @@ namespace TragicTheReckoningGame
                 return;
             }
             
-            foreach (var c in inHand)
+            PlayCardLoop(player, inHand, playerNumber);
+        }
+
+        /// <summary> The PlayCardLoop function is a loop that allows the player to play cards until they run out of mana
+        /// or type "next"</summary>
+        /// <param name="player"> The player who is playing the card</param>
+        /// <param name="inHand"> The list of cards in the player's hand.</param>
+        /// <param name="playerNumber"> Used to determine which player's hand the card should be removed from. </param>
+        private void PlayCardLoop(Player player, List<Card> inHand, int playerNumber)
+        {
+            var input = Console.ReadLine();
+
+            do
             {
-                if (input == c.Id.ToString())
+                Card c = inHand.Find(card => card.Id.ToString() == input);
+
+                if (c != null) // Check if the card is found
                 {
                     if (player.Mana >= c.Cost)
                     {
                         CardsOnScreen.Add(c);
                         player.Mana -= c.Cost;
                         PlayCard(c);
+
+                        if (playerNumber == 1)
+                        {
+                            TurnHandler.Instance.P1CardsInHand.Remove(c);
+                        }
+                        else
+                        {
+                            TurnHandler.Instance.P2CardsInHand.Remove(c);
+                        }
                     }
                     else
                     {
-                        Console.WriteLine("You don't have enough mana to draw that card.");
+                        Console.WriteLine("You don't have enough mana to play that card.");
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"'{input}' is not a valid ID or the card isn't available in your hands.");
+                    Console.WriteLine("Card not found in your hand.");
                 }
-            }
+
+                input = Console.ReadLine(); // Read the next input
+            } while (player.Mana != 0 || input != "next");
         }
 
         /// <summary> Visual indicator of the player having played a card.</summary>
@@ -128,14 +154,19 @@ namespace TragicTheReckoningGame
         }
 
         /// <summary> Visually draws the cards on screen.</summary>
-        internal void DrawCardsOnScreen()
+        internal void DrawCardsOnScreen(Player p1, Player p2)
         {
-            Console.WriteLine("-------- BATTLEFIELD -------\n\n");
+            Console.WriteLine("\n\n-------- BATTLEFIELD -------\n\n");
+            
+            Console.WriteLine($"Player 1: {p1.Name} | {p1.Hp} HEALTH\n");
+            Console.WriteLine($"Player 2: {p2.Name} | {p2.Hp} HEALTH\n");
             
             foreach (Card c in CardsOnScreen)
             {
-                Console.WriteLine(c.ToString() + " played by " + c.InDeck.Owner);
+                Console.WriteLine(c.ToString() + " played by " + c.InDeck.Owner.Name);
             }
+            
+            TurnHandler.Instance.TurnEnd();
         }
 
         /// <summary> Creates a new player object and returns it to the caller.</summary>
@@ -152,7 +183,7 @@ namespace TragicTheReckoningGame
             }
             else
             {
-                Console.WriteLine("Please input player 1's name.");
+                Console.WriteLine("Please input player 2's name.");
                 string p2Name = Console.ReadLine();
                 
                 return new Player(p2Name, new Deck(20));
