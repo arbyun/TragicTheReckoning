@@ -96,55 +96,76 @@ namespace TragicTheReckoningGame
             {
                 if (c.InDeck.Owner == p1)
                 {
-                    allies.Add(c);
+                    if (c.isDead)
+                    {
+                        allies.Remove(c);
+                        Viewer.Instance.CardsOnScreen.Remove(c);
+                    }
+                    else
+                    { 
+                        allies.Add(c);
+                    }
                 }
                 else
                 {
-                    enemies.Add(c);
+                    if (c.isDead)
+                    {
+                        enemies.Remove(c);
+                        Viewer.Instance.CardsOnScreen.Remove(c);
+                    }
+                    else
+                    {
+                        enemies.Add(c);
+                    }
+                    
                 }
             }
 
-            int totalCount = allies.Count > enemies.Count ? allies.Count : enemies.Count;
+            //int totalCount = allies.Count > enemies.Count ? allies.Count : enemies.Count;
+            int totalCount = Math.Max(allies.Count, enemies.Count);
 
             for (int i = 0; i < totalCount; i++)
             {
                 if (i < allies.Count && i < enemies.Count) // Check if both Allies and Enemies have cards at the current index
                 {
-                    CalculateDamage(allies[i], enemies[i]);
-                    Console.WriteLine($"{allies[i]} attacks {enemies[i]}.");
-                    CalculateDamage(enemies[i], allies[i]);
-                    Console.WriteLine($"{enemies[i]} attacks {allies[i]}.");
+                    bool allyWon = CalculateDamage(allies[i], enemies[i], allies);
+                    bool enemyWon = CalculateDamage(enemies[i], allies[i], enemies);
+                    
+                    Console.WriteLine($"{allies[i].Name} attacks {enemies[i].Name}.");
+                    Console.WriteLine($"{enemies[i].Name} attacks {allies[i].Name}.\n");
+
+                    allies[i]?.CardHealthCheck();
+                    enemies[i]?.CardHealthCheck();
+                    
+                    // If the current card wins the battle without dying, it keeps battling instead of switching to the next one
+                    if (allyWon && allies[i].Dp > 0)
+                    {
+                        continue;
+                    }
+                    else if (enemyWon && enemies[i].Dp > 0)
+                    {
+                        continue;
+                    }
                 }
                 else if (i < allies.Count) // if only Allies has a card at the current index
                 {
                     p2.TakeDamage(allies[i].Ap);
-                    Console.WriteLine($"{allies[i]} attacks {p2.Name}.");
-                    Console.WriteLine($"{p2.Name} now has {p2.Hp} health.");
+                    Console.WriteLine($"{allies[i].Name} attacks {p2.Name}.");
+                    Console.WriteLine($"{p2.Name} now has {p2.Hp} health.\n");
                 }
                 else if (i < enemies.Count) // Only Enemies have a card at the current index
                 {
                     p1.TakeDamage(enemies[i].Ap);
-                    Console.WriteLine($"{enemies[i]} attacks {p1.Name}.");
-                    Console.WriteLine($"{p1.Name} now has {p1.Hp} health.");
+                    Console.WriteLine($"{enemies[i].Name} attacks {p1.Name}.");
+                    Console.WriteLine($"{p1.Name} now has {p1.Hp} health.\n");
                 }
 
-                allies[i].CardHealthCheck();
-
-                if (allies[i].Dp <= 0)
-                {
-                    allies.Remove(allies[i]);
-                }
-
-                if (enemies[i].Dp <= 0)
-                {
-                    enemies.Remove(enemies[i]);
-                }
-                
-                enemies[i].CardHealthCheck();
             }
+            
+            Console.WriteLine($"{p1.Name}'s new health: {p1.Hp}");
+            Console.WriteLine($"{p2.Name}'s new health: {p2.Hp}");
         }
 
-        
         /// <summary> The CalculateDamage function takes two cards as parameters, and calculates the damage that will
         /// be dealt to the attacked card. If the damage is greater than or equal to 0, then it deals that much damage
         /// to the attacked card. Otherwise, if it's less than 0 (meaning that there was a positive difference between
@@ -152,20 +173,37 @@ namespace TragicTheReckoningGame
         /// </summary>
         /// <param name="attacker"> The card that is attacking</param>
         /// <param name="attacked"> The card that is being attacked.</param>
-        /// <returns> The damage dealt to the attacked card.</returns>
-        private static void CalculateDamage(Card attacker, Card attacked)
+        /// <param name="hand">The hand the attacker card is from.</param>
+        /// <returns> True if the attacking card wins the battle without dying, false otherwise.</returns>
+        private static bool CalculateDamage(Card attacker, Card attacked, List<Card> hand)
         {
-            int dmg = attacked.Dp - attacker.Ap;
+            int dmg = attacker.Ap - attacked.Dp;
 
-            if (dmg > attacked.Dp)
+            if (dmg >= 0)
             {
-                attacked.InDeck.Owner.TakeDamage(dmg - attacked.Dp);
-                Viewer.Instance.CardsOnScreen.Remove(attacked);
+                attacked.Damage(dmg);
+
+                // If the attacked card is killed, check if there is a next card on the index
+                if (attacked.Dp <= 0)
+                {
+                        int nextIndex = hand.IndexOf(attacked) + 1;
+                        if (nextIndex < hand.Count)
+                        {
+                            Card nextCard = hand[nextIndex];
+                            int excessDamage = Math.Max(0, -attacked.Dp);
+                            CalculateDamage(attacker, nextCard, hand);
+                            nextCard.Damage(excessDamage);
+                        }
+                        else
+                        {
+                            attacked.InDeck.Owner.TakeDamage(Math.Max(0, -attacked.Dp));
+                        }
+                }
+
+                return true;
             }
-            else
-            {
-                attacked.Damage(attacker.Ap);
-            }
+
+            return false;
         }
     }
 }
