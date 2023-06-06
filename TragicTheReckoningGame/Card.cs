@@ -5,34 +5,37 @@
         public readonly string Name;
         public readonly int Cost;
         public readonly int Ap;
+        public readonly int Id;
         public int Dp;
-        public Deck InDeck; //the deck the card is in
-        public bool InPlay;
+        public readonly Deck InDeck; //the deck the card is in
 
-        /// <summary>
-        /// Construtor das cartas contendo todos os parametros necessários
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="cost"></param>
-        /// <param name="ap"></param>
-        /// <param name="dp"></param>
-        /// <param name="inDeck"></param>
+        
+        /// <summary> The Card function creates a new card object with the given name, cost, attack points and defense points.        
+        /// It also assigns an ID to the card based on its position in the deck.</summary>
+        /// <param name="name"> Name of the card</param>
+        /// <param name="cost"> The cost of the card.</param>
+        /// <param name="ap"> Attack points</param>
+        /// <param name="dp"> Defense points</param>
+        /// <param name="inDeck"> The deck the card is in.</param>
+        /// <returns> A card object.</returns>
         public Card(string name, int cost, int ap, int dp, Deck inDeck=null)
         {
             Name = name;
             Cost = cost;
             Ap = ap;
             Dp = dp;
+            Id = InDeck.CardList.Count + 1;
             InDeck = inDeck;
         }
         
         /// <summary>
         /// Representação das cartas no ecrã
         /// </summary>
-        /// <returns></returns>
-        public override string ToString() => $"{Name}/{Cost}/{Ap}/{Dp}";
+        public override string ToString() => $"[ID: {Id}] ||  {Name}/{Cost}/{Ap}/{Dp}";
 
-        //Function to make the damage be delt to defence 
+        /// <summary>
+        /// Makes card suffer damage taking into account their defense points
+        /// </summary> 
         public void Damage(int damage) => Dp -= damage;
     }
 }
