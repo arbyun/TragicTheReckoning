@@ -4,7 +4,7 @@ namespace TragicTheReckoningGame
 {
     public abstract class CardHolder
     {
-        protected List<Card> CardList;
+        protected internal List<Card> CardList;
 
         internal void Populate(List<Card> cardList, Card cardToAdd, int quantity)
         {
