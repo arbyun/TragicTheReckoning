@@ -2,88 +2,71 @@
 
 namespace TragicTheReckoningGame
 {
-    class Program
+    internal static class Program
     {
         private static bool _gameOver = false;
-        private string gameWinner;
+        private static Player _gameWinner;
 
-        public static Player PlayerOne;
-        public static Player PlayerTwo;
-        public static TurnHandler TurnHandler;
+        private static Player _playerOne;
+        private static Player _playerTwo;
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            Console.WriteLine("Write here an intro or something");
-            CreatePlayer(1);
-            CreatePlayer(2);
+            Viewer.DrawIntroductionOnScreen();
+            _playerOne = Viewer.CreatePlayer(1);
+            _playerTwo = Viewer.CreatePlayer(2);
 
-            if (TurnHandler.CurrentTurnNumber == 1)
-            {
-                TurnHandler.PhaseOne(PlayerOne, PlayerTwo, 4);
-            }
-            else
-            {
-                TurnHandler.PhaseOne(PlayerOne, PlayerTwo, 1);
-            }
-            
             do
             {
-                
+                if (TurnHandler.Instance.CurrentTurnNumber == 1)
+                {
+                    TurnHandler.Instance.PhaseOne(_playerOne, _playerTwo, 4);
+                }
+                else
+                {
+                    TurnHandler.Instance.PhaseOne(_playerOne, _playerTwo, 1);
+                }
+
+                EvaluatePlayerHp(_playerOne);
+                EvaluatePlayerHp(_playerTwo);
+                EvaluateCardsLeft(_playerOne);
+                EvaluateCardsLeft(_playerTwo);
+
             } while (!_gameOver);
+
+            Viewer.DisplayGameWinner(_gameWinner);
         }
 
-        static void CreatePlayer(int playerNumber)
+        /// <summary> The EvaluatePlayerHp function checks to see if the player's HP is less than or equal to 0.
+        /// If it is, then the Die function will be called.</summary>
+        /// <param name="player"> The player that is being evaluated.</param>
+        private static void EvaluatePlayerHp(Player player)
         {
-            if (playerNumber == 1)
+            if (player.Hp <= 0)
             {
-                Console.WriteLine("Please input player 1's name.");
-                string p1Name = Console.ReadLine();
-                
-                PlayerOne = new Player(p1Name, new Deck(20));
-            }
-            else
-            {
-                Console.WriteLine("Please input player 1's name.");
-                string p2Name = Console.ReadLine();
-                
-                PlayerTwo = new Player(p2Name, new Deck(20));
+                Die(player);
             }
         }
 
-        /// <summary>
-        /// Evaluates if a card is dead and if so, cleans it from scene.
-        /// </summary>
-        /// <param name="card"></param>
-        void CleanFromScreen(Card card)
+        private static void EvaluateCardsLeft(Player player)
         {
-            
+            if (!player.PlayerDeck.CardsLeft)
+            {
+                Die(player);
+            }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="player"></param>
-        void EvaluatePlayerHp(Player player)
-        {
-            
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="player"></param>
-        void Die(Player player)
+        
+        /// <summary> The Die function is called when the player's health reaches 0. It sets the _gameOver variable to
+        /// true, and calls UI.DisplayGameWinner()</summary>
+        /// <param name="player"> The player to die.</param>
+        private static void Die(Player player)
         {
             _gameOver = true;
-            DisplayGameWinner();
+
+            _gameWinner = player == _playerOne ? _playerTwo : _playerOne;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        void DisplayGameWinner()
-        {
-            Console.WriteLine($"{gameWinner} won the game!");
-        }
+        
     }
 }
