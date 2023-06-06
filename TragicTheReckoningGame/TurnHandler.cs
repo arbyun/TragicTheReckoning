@@ -5,9 +5,9 @@ namespace TragicTheReckoningGame
 {
     public sealed class TurnHandler
     {
-        public int CurrentTurnNumber;
-        public readonly List<Card> P1CardsInHand = null;
-        public readonly List<Card> P2CardsInHand = null;
+        public int CurrentTurnNumber = 1;
+        public List<Card> P1CardsInHand = new List<Card>();
+        public List<Card> P2CardsInHand = new List<Card>();
 
         #region Instance Handler
 
@@ -46,13 +46,13 @@ namespace TragicTheReckoningGame
 
             for (int i = 0; i < cardsToDraw; i++)
             {
-                if (i >= p1.MaxHandSize)
+                if (cardsToDraw <= p1.MaxHandSize)
                 {
                     var temp1 = p1.PlayerDeck.DrawCard();
                     P1CardsInHand.Add(temp1);
                 }
 
-                if (i >= p2.MaxHandSize)
+                if (cardsToDraw <= p2.MaxHandSize)
                 {
                     var temp2 = p2.PlayerDeck.DrawCard();
                     P2CardsInHand.Add(temp2);
@@ -62,10 +62,10 @@ namespace TragicTheReckoningGame
             p1.ResetMana(CurrentTurnNumber);
             p2.ResetMana(CurrentTurnNumber);
 
-            Console.WriteLine($"Turn nº{CurrentTurnNumber}\n\n\n\n");
+            Console.WriteLine($"\n\nTurn nº{CurrentTurnNumber}");
             PlayCards(p1, P1CardsInHand, 1);
             PlayCards(p2, P2CardsInHand, 2);
-            Viewer.Instance.DrawCardsOnScreen();
+            Viewer.Instance.DrawCardsOnScreen(p1, p2);
             PhaseTwo(p1, p2);
         }
 
@@ -79,7 +79,8 @@ namespace TragicTheReckoningGame
         /// <returns> The card(s) that the player has chosen to play</returns>
         private static void PlayCards(Player player, List<Card> cardsInHand, int pNumber)
         {
-            Viewer.ShowPlayerCardsInHand(cardsInHand);
+            Console.WriteLine($"{player.Name}'s turn.\n");
+            Viewer.ShowPlayerCardsInHand(cardsInHand, player);
             Viewer.DrawInstructionsOnScreen();
             Viewer.Instance.InputListener(pNumber, player);
         }
@@ -88,8 +89,8 @@ namespace TragicTheReckoningGame
         /// and then displays it to the console.</summary>
         private void PhaseTwo(Player p1, Player p2)
         {
-            List<Card> allies = null; //representing p1's cards
-            List<Card> enemies = null; //representing p2's cards
+            List<Card> allies = new List<Card>(); //representing p1's cards
+            List<Card> enemies = new List<Card>(); //representing p2's cards
 
             foreach (Card c in Viewer.Instance.CardsOnScreen)
             {
@@ -118,12 +119,28 @@ namespace TragicTheReckoningGame
                 {
                     p2.TakeDamage(allies[i].Ap);
                     Console.WriteLine($"{allies[i]} attacks {p2.Name}.");
+                    Console.WriteLine($"{p2.Name} now has {p2.Hp} health.");
                 }
                 else if (i < enemies.Count) // Only Enemies have a card at the current index
                 {
                     p1.TakeDamage(enemies[i].Ap);
                     Console.WriteLine($"{enemies[i]} attacks {p1.Name}.");
+                    Console.WriteLine($"{p1.Name} now has {p1.Hp} health.");
                 }
+
+                allies[i].CardHealthCheck();
+
+                if (allies[i].Dp <= 0)
+                {
+                    allies.Remove(allies[i]);
+                }
+
+                if (enemies[i].Dp <= 0)
+                {
+                    enemies.Remove(enemies[i]);
+                }
+                
+                enemies[i].CardHealthCheck();
             }
         }
 
