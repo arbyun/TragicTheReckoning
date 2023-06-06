@@ -1,18 +1,43 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TragicTheReckoningGame
 {
-    public class TurnHandler
+    public sealed class TurnHandler
     {
         public int CurrentTurnNumber;
+        public readonly List<Card> P1CardsInHand = null;
+        public readonly List<Card> P2CardsInHand = null;
+
+        #region Instance Handler
+
+        private static TurnHandler _instance = null;
+
+        private TurnHandler()
+        {
+        }
+
+        public static TurnHandler Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new TurnHandler();
+                }
+                return _instance;
+            }
+        }
+        
+        #endregion
 
         /// <summary>
-        /// Ending turn 
+        /// End this turn 
         /// </summary>
-        void TurnEnd() => CurrentTurnNumber += 1;
+        internal void TurnEnd() => CurrentTurnNumber += 1;
 
         /// <summary>
-        /// Starting phase 1
+        /// Starts phase 1
         /// </summary>
         internal void PhaseOne(Player p1, Player p2, int cardsToDraw)
         {
@@ -21,38 +46,104 @@ namespace TragicTheReckoningGame
 
             for (int i = 0; i < cardsToDraw; i++)
             {
-                p1.PlayerDeck.DrawCard();
-                p2.PlayerDeck.DrawCard();
+                if (i >= p1.MaxHandSize)
+                {
+                    var temp1 = p1.PlayerDeck.DrawCard();
+                    P1CardsInHand.Add(temp1);
+                }
+
+                if (i >= p2.MaxHandSize)
+                {
+                    var temp2 = p2.PlayerDeck.DrawCard();
+                    P2CardsInHand.Add(temp2);
+                }
             }
 
             p1.ResetMana(CurrentTurnNumber);
             p2.ResetMana(CurrentTurnNumber);
 
-            Console.WriteLine($"Turn nº{CurrentTurnNumber}");
-
+            Console.WriteLine($"Turn nº{CurrentTurnNumber}\n\n\n\n");
+            PlayCards(p1, P1CardsInHand, 1);
+            PlayCards(p2, P2CardsInHand, 2);
+            Viewer.Instance.DrawCardsOnScreen();
+            PhaseTwo(p1, p2);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        internal void PhaseTwo()
+        /// <summary> The PlayCards function is the main function that allows a player to play cards.        
+        /// It takes in two parameters: a Player object and an integer representing the number of cards in hand.
+        /// The function then calls on Viewer's ShowPlayerCardsInHand method, which displays all of the player's
+        /// cards on screen and allows the player to play them by calling the InputListener.</summary>
+        /// <param name="player"> The player who is playing the cards</param>
+        /// <param name="cardsInHand"> The cards in the player's hand</param>
+        /// <param name="pNumber"> The player's number/order, used to determine which player's turn it is.</param>
+        /// <returns> The card(s) that the player has chosen to play</returns>
+        private static void PlayCards(Player player, List<Card> cardsInHand, int pNumber)
         {
-            
+            Viewer.ShowPlayerCardsInHand(cardsInHand);
+            Viewer.DrawInstructionsOnScreen();
+            Viewer.Instance.InputListener(pNumber, player);
         }
 
-        /// <summary>
-        /// 
+        /// <summary> The PhaseTwo function is the second phase of a turn. It calculates damage between all cards in play,
+        /// and then displays it to the console.</summary>
+        private void PhaseTwo(Player p1, Player p2)
+        {
+            List<Card> allies = null; //representing p1's cards
+            List<Card> enemies = null; //representing p2's cards
+
+            foreach (Card c in Viewer.Instance.CardsOnScreen)
+            {
+                if (c.InDeck.Owner == p1)
+                {
+                    allies.Add(c);
+                }
+                else
+                {
+                    enemies.Add(c);
+                }
+            }
+
+            int totalCount = allies.Count > enemies.Count ? allies.Count : enemies.Count;
+
+            for (int i = 0; i < totalCount; i++)
+            {
+                if (i < allies.Count && i < enemies.Count) // Check if both Allies and Enemies have cards at the current index
+                {
+                    CalculateDamage(allies[i], enemies[i]);
+                    Console.WriteLine($"{allies[i]} attacks {enemies[i]}.");
+                    CalculateDamage(enemies[i], allies[i]);
+                    Console.WriteLine($"{enemies[i]} attacks {allies[i]}.");
+                }
+                else if (i < allies.Count) // if only Allies has a card at the current index
+                {
+                    p2.TakeDamage(allies[i].Ap);
+                    Console.WriteLine($"{allies[i]} attacks {p2.Name}.");
+                }
+                else if (i < enemies.Count) // Only Enemies have a card at the current index
+                {
+                    p1.TakeDamage(enemies[i].Ap);
+                    Console.WriteLine($"{enemies[i]} attacks {p1.Name}.");
+                }
+            }
+        }
+
+        
+        /// <summary> The CalculateDamage function takes two cards as parameters, and calculates the damage that will
+        /// be dealt to the attacked card. If the damage is greater than or equal to 0, then it deals that much damage
+        /// to the attacked card. Otherwise, if it's less than 0 (meaning that there was a positive difference between
+        /// AP and DP), then we deal no damage but instead set InPlay = false for this card and remove it from Play.
         /// </summary>
-        /// <param name="attacker"></param>
-        /// <param name="attacked"></param>
-        internal void CalculateDamage(Card attacker, Card attacked)
+        /// <param name="attacker"> The card that is attacking</param>
+        /// <param name="attacked"> The card that is being attacked.</param>
+        /// <returns> The damage dealt to the attacked card.</returns>
+        private static void CalculateDamage(Card attacker, Card attacked)
         {
             int dmg = attacked.Dp - attacker.Ap;
 
             if (dmg > attacked.Dp)
             {
                 attacked.InDeck.Owner.TakeDamage(dmg - attacked.Dp);
-                attacked.InPlay = false;
+                Viewer.Instance.CardsOnScreen.Remove(attacked);
             }
             else
             {
