@@ -1,4 +1,6 @@
-﻿namespace TragicTheReckoningGame
+﻿using System;
+
+namespace TragicTheReckoningGame
 {
     public class TurnHandler
     {
@@ -12,12 +14,13 @@
         /// <summary>
         /// Starting phase 1
         /// </summary>
-        void PhaseOne(Player p1, Player p2, int cardsToDraw)
+        internal void PhaseOne(Player p1, Player p2, int cardsToDraw)
         {
             p1.PlayerDeck.ShuffleCards();
             p2.PlayerDeck.ShuffleCards();
 
-            for (i = 1, i >= cardsToDraw, i++) {
+            for (int i = 0; i < cardsToDraw; i++)
+            {
                 p1.PlayerDeck.DrawCard();
                 p2.PlayerDeck.DrawCard();
             }
@@ -25,14 +28,14 @@
             p1.ResetMana(CurrentTurnNumber);
             p2.ResetMana(CurrentTurnNumber);
 
-            Console.WriteLine($"Turn nº (CurrentTurnNumber)");
+            Console.WriteLine($"Turn nº{CurrentTurnNumber}");
 
         }
 
         /// <summary>
         /// 
         /// </summary>
-        void PhaseTwo()
+        internal void PhaseTwo()
         {
             
         }
@@ -42,7 +45,7 @@
         /// </summary>
         /// <param name="attacker"></param>
         /// <param name="attacked"></param>
-        void CalculateDamage(Card attacker, Card attacked)
+        internal void CalculateDamage(Card attacker, Card attacked)
         {
             int dmg = attacked.Dp - attacker.Ap;
 
