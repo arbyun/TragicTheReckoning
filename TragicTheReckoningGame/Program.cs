@@ -20,7 +20,7 @@ namespace TragicTheReckoningGame
             {
                 if (TurnHandler.Instance.CurrentTurnNumber <= 1)
                 {
-                    TurnHandler.Instance.PhaseOne(_playerOne, _playerTwo, 4);
+                    TurnHandler.Instance.PhaseOne(_playerOne, _playerTwo, 6);
                 }
                 else
                 {
