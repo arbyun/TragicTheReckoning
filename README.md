@@ -1,4 +1,4 @@
-# TragicTheReckoning
+# Tragic: The Reckoning
 Project for LP1 based on Magic: The Gathering
 
 Trabalho feito por 
